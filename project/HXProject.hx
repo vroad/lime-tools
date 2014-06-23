@@ -90,7 +90,11 @@ class HXProject {
 		var classRef = Type.resolveClass (args[0]);
 		var instance = Type.createInstance (classRef, []);
 		
-		Sys.print (Serializer.run (instance));
+		var serializer = new Serializer ();
+		serializer.useCache = true;
+		serializer.serialize (instance);
+		
+		Sys.print (serializer.toString ());
 		
 	}
 	
@@ -375,7 +379,7 @@ class HXProject {
 	
 	public static function fromFile (projectFile:String, userDefines:Map <String, Dynamic> = null, includePaths:Array <String> = null):HXProject {
 		
-		var project = null;
+		var project:HXProject = null;
 		
 		var path = FileSystem.fullPath (Path.withoutDirectory (projectFile));
 		var name = Path.withoutDirectory (Path.withoutExtension (projectFile));
@@ -387,9 +391,10 @@ class HXProject {
 		
 		FileHelper.copyFile (path, classFile);
 		
-		ProcessHelper.runCommand (tempDirectory, "haxe", [ name, "-main", "project.HXProject", "-cp", path, "-cp", ".", "-neko", nekoOutput, "-lib", "lime-tools", "-lib", "openfl", "--macro", "openfl.Lib.includeBackend('native')", "--remap", "flash:openfl" ]);
+		ProcessHelper.runCommand (tempDirectory, "haxe \"" + name + "\" -main project.HXProject -cp \"" + Path.directory (path) + "\" -cp . -neko \"" + nekoOutput + "\" -lib lime-tools -lib openfl --macro " + 'openfl.Lib.includeBackend\\(\\"native\\"\\)' + " --remap flash:openfl", null);
 		
 		var process = new Process ("neko", [ FileSystem.fullPath (nekoOutput), name, HXProject._command, Std.string (HXProject._debug), Std.string (HXProject._target), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths) ]);
+		
 		var output = process.stdout.readAll ().toString ();
 		var error = process.stderr.readAll ().toString ();
 		process.exitCode ();
