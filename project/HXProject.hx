@@ -394,7 +394,7 @@ class HXProject {
 		
 		FileHelper.copyFile (path, classFile);
 		
-		ProcessHelper.runCommand (tempDirectory, "haxe \"" + name + "\" -main project.HXProject -cp \"" + Path.directory (path) + "\" -cp . -neko \"" + nekoOutput + "\" -lib lime-tools -lib openfl --macro " + 'openfl.Lib.includeBackend\\(\\"native\\"\\)' + " --remap flash:openfl", null);
+		ProcessHelper.runCommand (tempDirectory, "haxe \"" + name + "\" -main project.HXProject -cp \"" + Path.directory (path) + "\" -cp . -neko \"" + nekoOutput + "\" -lib lime-tools -lib openfl --macro " + (PlatformHelper.hostPlatform == Platform.WINDOWS ? "openfl.Lib.includeBackend('native')" : 'openfl.Lib.includeBackend\\(\\"native\\"\\)') + " --remap flash:openfl", null);
 		ProcessHelper.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), HXProject._command, name, Std.string (HXProject._target), Std.string (HXProject._debug), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths), temporaryFile ]);
 		
 		try {
