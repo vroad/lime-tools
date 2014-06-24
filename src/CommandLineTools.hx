@@ -647,10 +647,7 @@ class CommandLineTools {
 	#if (neko && (haxe_210 || haxe3))
 	public static function __init__ () {
 		
-		var haxePath = Sys.getEnv ("HAXEPATH");
-		var command = (haxePath != null && haxePath != "") ? haxePath + "/haxelib" : "haxelib";
-		
-		var process = new Process (command, [ "path", "lime-tools" ]);
+		var process = new Process ("haxelib", [ "path", "lime-tools" ]);
 		var path = "";
 		var lines = new Array <String> ();
 		
@@ -1330,8 +1327,7 @@ class CommandLineTools {
 				
 				if (path != null && path != "") {
 					
-					var haxePath = Sys.getEnv ("HAXEPATH");
-					ProcessHelper.runCommand (haxePath, "haxelib", [ "remove", name ]);
+					ProcessHelper.runCommand ("", "haxelib", [ "remove", name ]);
 					
 				}
 			
