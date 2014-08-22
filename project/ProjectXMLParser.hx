@@ -79,6 +79,11 @@ class ProjectXMLParser extends HXProject {
 			defines.set ("native", "1");
 			defines.set ("neko", "1");
 			
+		} else if (targetFlags.exists ("v8")) {
+			
+			defines.set ("native", "1");
+			defines.set ("v8", "1");
+			
 		} else if (target == Platform.FIREFOXOS) {
 			
 			defines.set ("html5", "1");

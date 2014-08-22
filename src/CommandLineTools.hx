@@ -804,6 +804,11 @@ class CommandLineTools {
 				
 				target = PlatformHelper.hostPlatform;
 				targetFlags.set ("neko", "");
+
+			case "v8":
+
+				target = PlatformHelper.hostPlatform;
+				targetFlags.set ("v8", "");
 				
 			case "iphone", "iphoneos":
 				

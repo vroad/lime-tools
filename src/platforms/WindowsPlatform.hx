@@ -25,7 +25,7 @@ class WindowsPlatform implements IPlatformTool {
 	private var executablePath:String;
 	private var targetDirectory:String;
 	private var useNeko:Bool;
-	
+	private var useV8:Bool;
 	
 	public function build (project:HXProject):Void {
 		
@@ -70,6 +70,12 @@ class WindowsPlatform implements IPlatformTool {
 			NekoHelper.createExecutable (project.templatePaths, "windows", targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "windows", applicationDirectory);
 			
+		}
+		else if (useV8) {
+
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			//NekoHelper.createExecutable (project.templatePaths, "windows", targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.copyLibraries (project.templatePaths, "windows", applicationDirectory);
 		} else {
 			
 			var haxeArgs = [ hxml ];
@@ -130,8 +136,8 @@ class WindowsPlatform implements IPlatformTool {
 			type = "final";
 			
 		}
-		
-		var hxml = PathHelper.findTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml/" + type + ".hxml");
+
+		var hxml = PathHelper.findTemplate (project.templatePaths, (useNeko ? "neko" : useV8 ? "v8" : "cpp") + "/hxml/" + type + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		Sys.println (template.execute (generateContext (project)));
 		
@@ -145,6 +151,7 @@ class WindowsPlatform implements IPlatformTool {
 		context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.BUILD_DIR = project.app.path + "/windows";
+		context.OUTPUT_FILE = context.BUILD_DIR + "/v8/bin/" + project.app.file + ".js";
 		
 		return context;
 		
@@ -159,7 +166,13 @@ class WindowsPlatform implements IPlatformTool {
 			
 			targetDirectory = project.app.path + "/windows/neko";
 			useNeko = true;
+			useV8 = false;
 			
+		} else if (project.targetFlags.exists ("v8") || project.target != PlatformHelper.hostPlatform) {
+
+			targetDirectory = project.app.path + "/windows/v8";
+			useV8 = true;
+			useNeko = false;
 		}
 		
 		applicationDirectory = targetDirectory + "/bin/";
@@ -203,7 +216,7 @@ class WindowsPlatform implements IPlatformTool {
 		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml", targetDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, (useNeko ? "neko" : useV8 ? "v8" : "cpp") + "/hxml", targetDirectory + "/haxe", context);
 		
 		/*if (IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"))) {
 			
